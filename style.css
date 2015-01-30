@@ -1,0 +1,26 @@
+body {
+  background-color: #E1F5FE;
+}
+
+.cell {
+  height: 50px;
+  width: 50px;
+  display: inline-block;
+  background-color: #81D4FA;
+  margin: 2px 2px;
+  transition: background-color 0.12s ease-in;
+  border-radius: 5px;
+}
+
+.cell.active {
+  background-color: #03A9F4;
+}
+
+.cell.clocked {
+  background-color: #B3E5FC;
+}
+
+#matrix {
+  text-align: center;
+  margin-top: 128px;
+}
