@@ -40,27 +40,27 @@ function init() {
 function finishedLoading(bufferList) {
   buffers = bufferList;
   matrix = document.getElementById('matrix');
-
   sequence = new Array(buffers.length);
 
   // Generate matrix view and model
   for (i=0; i < buffers.length; i++) {
     sequence[i] = new Array(beats);
 
+    var row = document.createElement("div");
+    row.id = "row" + i;
+    matrix.appendChild(row);
+
     for(j=0; j < beats; j++) {
       sequence[i][j] = 0;
 
       var cell = document.createElement("div");
       cell.classList.add("cell");
-      cell.classList.add("row" + i);
       cell.classList.add("col" + j);
       cell.dataset.row = i;
       cell.dataset.col = j;
       cell.dataset.checked = 0;
-      matrix.appendChild(cell);
+      row.appendChild(cell);
     }
-
-    matrix.innerHTML += "<br>";
   }
 
   midi = new MidiManager(sequence);
@@ -157,7 +157,7 @@ function nextNote() {
     else
       nextNoteTime += 0.18 * secondsPerBeat;
   }
-  
+
   else
     nextNoteTime += 0.25 * secondsPerBeat;
 
