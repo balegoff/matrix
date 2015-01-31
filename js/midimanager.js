@@ -24,7 +24,9 @@ function onerrorcallback( err ) {
 }
 
 function onMidiIn(midi_mess) {
-  if(midi_mess.data[2] != 0) {
+  // Checking if we are receiving a midi message from the 8x8 grid
+  if(midi_mess.data[2] != 0 && !( (midi_mess.data[1]/8)%2 == 1 )) {
+
     var note = parseInt(midi_mess.data[1]);
     var i = parseInt(note / 16);
     var j = parseInt(note % 8);
