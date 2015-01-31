@@ -25,7 +25,7 @@ window.onload = init;
 
 function init() {
   window.AudioContext = window.AudioContext || window.webkitAudioContext;
-  
+
   context = new AudioContext();
   midi = new MidiManager(sequence);
 
@@ -47,17 +47,26 @@ function init() {
 
 function finishedLoading(bufferList) {
   buffers = bufferList;
+  matrix = document.getElementById('matrix');
 
   // Generate matrix view
   for (i=0; i < buffers.length; i++) {
-    for(j=0; j < beats; j++)
-      $('#matrix').append('<div class="cell row'+i+' col'+j+'" data-row='+i+' data-col='+j+' data-checked=0></div>');
+    for(j=0; j < beats; j++) {
+      var cell = document.createElement("div");
+      cell.classList.add("cell");
+      cell.classList.add("row" + i);
+      cell.classList.add("col" + j);
+      cell.dataset.row = i;
+      cell.dataset.col = j;
+      cell.dataset.checked = 0;
+      matrix.appendChild(cell);
+    }
 
-    $('#matrix').append('<br>');
+    matrix.innerHTML += "<br>";
   }
 
   // Press space event
-  $(document).bind('keyup', function (evt) {
+  document.addEventListener('keyup', function (evt) {
     if (evt.keyCode == 32) {
 
       if (!playing) {
@@ -73,27 +82,32 @@ function finishedLoading(bufferList) {
     }
   });
 
-  // Set click listenners on cells
-  $('.cell').click(function(){
-    var i = this.getAttribute('data-row');
-    var j = this.getAttribute('data-col');
-    var note = parseInt(i*16) + parseInt(j);
+  var cells = document.querySelectorAll(".cell");
 
-    if(this.getAttribute('data-checked') == 0) {
-      $(this).attr('data-checked', '1');
-      $(this).addClass("active");
-      sequence[i][j] = 1;
-      midi.noteOn(note, 100);
-    }
+  // Set click listeners on cells
+  for(var i=0; i < cells.length; i++) {
+    cell = cells[i];
+    cell.addEventListener('click', function(){
+      var i = this.dataset.row;
+      var j = this.dataset.col;
+      var note = parseInt(i*16) + parseInt(j);
 
-    else if(this.getAttribute('data-checked') == 1) {
-      $(this).attr('data-checked', '0');
-      $(this).css('opacity', 1);
-      $(this).removeClass("active");
-      sequence[i][j] = 0;
-      midi.noteOff(note);
-    }
-  });
+      if(this.dataset.checked == 0) {
+        this.dataset.checked = 1;
+        this.classList.add("active");
+        sequence[i][j] = 1;
+        midi.noteOn(note, 100);
+      }
+
+      else if(this.dataset.checked == 1) {
+        this.dataset.checked = 0;
+        this.style.opacity = 1;
+        this.classList.remove("active");
+        sequence[i][j] = 0;
+        midi.noteOff(note);
+      }
+    });
+  }
 }
 
 function playSample(index, time) {
@@ -113,12 +127,7 @@ function scheduler() {
 }
 
 function scheduleNote(current16thNote, nextNoteTime) {
-  var toRecheck = [];
-
   for(i=0; i < sequence.length; i++) {
-    if(sequence[i][(current16thNote + beats - 1) % beats] == 1)
-      toRecheck.push(i);
-
     if(sequence[i][current16thNote]) {
       playSample(i, nextNoteTime);
     }
@@ -126,11 +135,16 @@ function scheduleNote(current16thNote, nextNoteTime) {
 
   // Update matrix view
   redrawer = window.setTimeout(function() {
-    $('.col' + ((current16thNote + beats - 1) % beats)).removeClass("active").removeClass("clocked");
-    $('.col' + current16thNote).addClass("clocked");
+    var matrix = document.querySelectorAll(".cell");
 
-    for(var i=0; i < toRecheck.length; i++)
-      $('.row' + toRecheck[i] +  '.col' + ((current16thNote + beats - 1) % beats)).addClass("active");
+    for(var i=0; i< matrix.length; i++) {
+      var cell = matrix[i];
+      cell.classList.remove("clocked");
+
+      if(cell.dataset.col == current16thNote)
+        cell.classList.add("clocked");
+    }
+
   }, context.currentTime - nextNoteTime);
 }
 

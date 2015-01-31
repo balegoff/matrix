@@ -31,13 +31,13 @@ function onMidiIn(midi_mess) {
 
     if(midi_sequence[i][j] == 1) {
       midi_output.send([0x80, midi_mess.data[1], 0]);
-      $(".row" + i + ".col" + j).removeClass("active");
+      document.querySelector(".row" + i + ".col" + j).classList.remove("active");
         midi_sequence[i][j] = 0;
     }
-    
+
     else {
       midi_output.send([0x90, midi_mess.data[1], 100]);
-      $(".row" + i + ".col" + j).addClass("active");
+      document.querySelector(".row" + i + ".col" + j).classList.add("active");
       midi_sequence[i][j] = 1;
     }
   }
