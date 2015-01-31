@@ -12,14 +12,7 @@ var groovy = true;
 
 var rescheduler;
 var redrawer;
-
-var kick_line = [0,0,0,0,0,0,0,0];
-var clap_line = [0,0,0,0,0,0,0,0];
-var hihat_line  = [0,0,0,0,0,0,0,0];
-var lowhat_line  = [0,0,0,0,0,0,0,0];
-var shaker_line  = [0,0,0,0,0,0,0,0];
-var fx_line  = [0,0,0,0,0,0,0,0];
-var sequence = [kick_line, clap_line, hihat_line, lowhat_line, shaker_line, fx_line];
+var sequence;
 
 window.onload = init;
 
@@ -27,7 +20,6 @@ function init() {
   window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
   context = new AudioContext();
-  midi = new MidiManager(sequence);
 
   bufferLoader = new BufferLoader(
     context,
@@ -49,9 +41,15 @@ function finishedLoading(bufferList) {
   buffers = bufferList;
   matrix = document.getElementById('matrix');
 
-  // Generate matrix view
+  sequence = new Array(buffers.length);
+
+  // Generate matrix view and model
   for (i=0; i < buffers.length; i++) {
+    sequence[i] = new Array(beats);
+
     for(j=0; j < beats; j++) {
+      sequence[i][j] = 0;
+
       var cell = document.createElement("div");
       cell.classList.add("cell");
       cell.classList.add("row" + i);
@@ -65,6 +63,8 @@ function finishedLoading(bufferList) {
     matrix.innerHTML += "<br>";
   }
 
+  midi = new MidiManager(sequence);
+
   // Press space event
   document.addEventListener('keyup', function (evt) {
     if (evt.keyCode == 32) {
@@ -75,7 +75,7 @@ function finishedLoading(bufferList) {
         scheduler();
       }
       else {
-        playing=false;
+        playing = false;
         clearTimeout(rescheduler);
         clearTimeout(redrawer);
       }
@@ -157,7 +157,7 @@ function nextNote() {
     else
       nextNoteTime += 0.18 * secondsPerBeat;
   }
-
+  
   else
     nextNoteTime += 0.25 * secondsPerBeat;
 
