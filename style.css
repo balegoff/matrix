@@ -11,12 +11,12 @@ body {
   border-radius: 5px;
 }
 
-.cell.active {
-  background-color: #fff;
-}
-
 .cell.clocked {
   background-color: #E91E63 ;
+}
+
+.cell.active {
+  background-color: #fff;
 }
 
 #matrix {
