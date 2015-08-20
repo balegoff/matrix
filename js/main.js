@@ -118,7 +118,7 @@ function finishedLoading(bufferList) {
 
   // Center the matrix vertically
   matrix.style.marginTop = parseInt(window.innerHeight/2 - matrix.clientHeight/2) + "px";
-
+  repaint(0);
 }
 
 /**
