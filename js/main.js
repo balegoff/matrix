@@ -2,20 +2,25 @@ var context;
 var bufferLoader;
 var buffers;
 var tempo = 125;
-var beats = 8;
-var nextNoteTime;
+var steps = 8;
+var nextStepTime;
 var scheduleAheadTime = 0.1;
 var lookahead = 25.0;
-var current16thNote = 0;
+var currentStep = 0;
 var playing = false;
 var groovy = true;
 
-var rescheduler;
-var redrawer;
-var sequence;
+var rescheduler; // scheduler timeout
+var redrawer; // redraw timeout
+var sequence; // sequencer grid model
 
 window.onload = init;
 
+/**
+ * Entry point of the application
+ * This method is responsible to load the samples in memory before the
+ * application actually starts.
+ */
 function init() {
   window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
@@ -37,6 +42,10 @@ function init() {
   bufferLoader.load();
 }
 
+/**
+ * Callback method called when the samples have been loaded have been loaded
+ * @param {ArrayBuffer} bufferList The array containing the samples buffers
+ */
 function finishedLoading(bufferList) {
   buffers = bufferList;
   matrix = document.getElementById('matrix');
@@ -44,13 +53,13 @@ function finishedLoading(bufferList) {
 
   // Generate matrix view and model
   for (i=0; i < buffers.length; i++) {
-    sequence[i] = new Array(beats);
+    sequence[i] = new Array(steps);
 
     var row = document.createElement("div");
     row.id = "row" + i;
     matrix.appendChild(row);
 
-    for(j=0; j < beats; j++) {
+    for(j=0; j < steps; j++) {
       sequence[i][j] = 0;
 
       var cell = document.createElement("div");
@@ -65,13 +74,13 @@ function finishedLoading(bufferList) {
 
   midi = new MidiManager(sequence);
 
-  // Press space event
+  // Set press space event listener
   document.addEventListener('keyup', function (evt) {
     if (evt.keyCode == 32) {
 
       if (!playing) {
         playing = true;
-        nextNoteTime = context.currentTime;
+        nextStepTime = context.currentTime;
         scheduler();
       }
       else {
@@ -110,6 +119,11 @@ function finishedLoading(bufferList) {
   }
 }
 
+/**
+ * Requests a sample to play
+ * @param {integer} index The index of the sample to play in the buffer array
+ * @param {integer} time  The amount of time to wait before playing the sample
+ */
 function playSample(index, time) {
   var source = context.createBufferSource();
   source.buffer = buffers[index];
@@ -117,19 +131,25 @@ function playSample(index, time) {
   source.start(time);
 }
 
+/**
+ * Handles the main loop of the application, scheduling the next note to play
+ */
 function scheduler() {
-  while (nextNoteTime < context.currentTime + scheduleAheadTime && playing) {
-      scheduleNote(current16thNote, nextNoteTime);
-      nextNote();
+  while (nextStepTime < context.currentTime + scheduleAheadTime && playing) {
+      scheduleNextStep();
+      nextStep();
   }
   if (playing)
     rescheduler = window.setTimeout(scheduler, lookahead);
 }
 
-function scheduleNote(current16thNote, nextNoteTime) {
+/**
+ * Schedules next step notes and associated display repaint
+ */
+function scheduleNextStep() {
   for(i=0; i < sequence.length; i++) {
-    if(sequence[i][current16thNote]) {
-      playSample(i, nextNoteTime);
+    if(sequence[i][currentStep]) {
+      playSample(i, nextStepTime);
     }
   }
 
@@ -141,25 +161,26 @@ function scheduleNote(current16thNote, nextNoteTime) {
       var cell = matrix[i];
       cell.classList.remove("clocked");
 
-      if(cell.dataset.col == current16thNote)
+      if(cell.dataset.col == currentStep)
         cell.classList.add("clocked");
     }
 
-  }, context.currentTime - nextNoteTime);
+  }, context.currentTime - nextStepTime);
 }
 
-function nextNote() {
-  var secondsPerBeat = 60.0 / tempo;
+/**
+ * Increments the current step
+ */
+function nextStep() {
+  var secondsPerStep = 60.0 / tempo;
 
-  if(groovy) {
-    if ((current16thNote % 2) == 0)
-      nextNoteTime += 0.32 * secondsPerBeat;
-    else
-      nextNoteTime += 0.18 * secondsPerBeat;
+  if(groovy) { // swing mode
+    var swing_coeff = ((currentStep % 2) == 0) ? 0.32 : 0.18;
+    nextStepTime += swing_coeff * secondsPerStep;
+  }
+  else { // regular mode
+    nextStepTime += 0.25 * secondsPerStep;
   }
 
-  else
-    nextNoteTime += 0.25 * secondsPerBeat;
-
-  current16thNote = (current16thNote + 1) % beats;
+  currentStep = (currentStep + 1) % steps;
 }
