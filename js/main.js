@@ -15,7 +15,7 @@ var groovy = false; // activate swing
 
 var rescheduler; // scheduler timeout
 var redrawer; // redraw timeout
-var sequence; // sequencer grid model
+var sequence; // sequencer grid data
 
 window.onload = init;
 
@@ -80,7 +80,6 @@ function finishedLoading(bufferList) {
   // Set press space event listener
   document.addEventListener('keyup', function (evt) {
     if (evt.keyCode == 32) {
-
       if (!playing) {
         playing = true;
         nextStepTime = context.currentTime;
@@ -97,8 +96,8 @@ function finishedLoading(bufferList) {
   var cells = document.querySelectorAll(".cell");
 
   // Set click listeners on cells
-  for(var i=0; i < cells.length; i++) {
-    cell = cells[i];
+  for(var c=0; c < cells.length; c++) {
+    cell = cells[c];
     cell.addEventListener('click', function(){
       var i = this.dataset.row;
       var j = this.dataset.col;
