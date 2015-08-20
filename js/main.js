@@ -1,14 +1,17 @@
 var context;
 var bufferLoader;
 var buffers;
-var tempo = 125;
+
+var tempo = 130;
 var steps = 8;
+var currentStep = 0;
+
 var nextStepTime;
 var scheduleAheadTime = 0.1;
 var lookahead = 25.0;
-var currentStep = 0;
-var playing = false;
-var groovy = true;
+
+var playing = false; // playing state flag
+var groovy = false; // activate swing
 
 var rescheduler; // scheduler timeout
 var redrawer; // redraw timeout
@@ -107,7 +110,6 @@ function finishedLoading(bufferList) {
         sequence[i][j] = 1;
         midi.noteOn(note, 100);
       }
-
       else if(this.dataset.checked == 1) {
         this.dataset.checked = 0;
         this.style.opacity = 1;
@@ -161,7 +163,7 @@ function scheduleNextStep() {
       var cell = matrix[i];
       cell.classList.remove("clocked");
 
-      if(cell.dataset.col == currentStep)
+      if(cell.dataset.col == currentStep && cell.dataset.checked == 0)
         cell.classList.add("clocked");
     }
 
@@ -169,7 +171,7 @@ function scheduleNextStep() {
 }
 
 /**
- * Increments the current step
+ * Increments the current sequencer step
  */
 function nextStep() {
   var secondsPerStep = 60.0 / tempo;
