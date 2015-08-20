@@ -40,7 +40,7 @@ function onsuccesscallback(access) {
  */
 function onMidiIn(midi_mess) {
   var packet = midi_mess.data;
-  console.log("p0: " + packet[0] + ", p1: " + packet[1] + ", p2: " + packet[2])
+
   // Checking if we are receiving a note on message from the 8x8 grid
   if(packet[2] > 0 && !((packet[1]/8)%2 == 1)) {
 
@@ -54,13 +54,11 @@ function onMidiIn(midi_mess) {
     if(midi_sequence[i][j] == 1) {
       midi_output.send([0x80, packet[1], 0]);
       cell.classList.remove("active");
-      cell.dataset.checked = 0;
       midi_sequence[i][j] = 0;
     }
     else {
       midi_output.send([0x90, packet[1], 100]);
       cell.classList.add("active");
-      cell.dataset.checked = 1;
       midi_sequence[i][j] = 1;
     }
   }

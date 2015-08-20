@@ -51,18 +51,18 @@ function init() {
  */
 function finishedLoading(bufferList) {
   buffers = bufferList;
-  matrix = document.getElementById('matrix');
   sequence = new Array(buffers.length);
+  var matrix = document.getElementById('matrix');
 
   // Generate matrix view and model
-  for (i=0; i < buffers.length; i++) {
+  for (var i=0; i < buffers.length; i++) {
     sequence[i] = new Array(steps);
 
     var row = document.createElement("div");
     row.id = "row" + i;
     matrix.appendChild(row);
 
-    for(j=0; j < steps; j++) {
+    for(var j=0; j < steps; j++) {
       sequence[i][j] = 0;
 
       var cell = document.createElement("div");
@@ -70,7 +70,6 @@ function finishedLoading(bufferList) {
       cell.classList.add("col" + j);
       cell.dataset.row = i;
       cell.dataset.col = j;
-      cell.dataset.checked = 0;
       row.appendChild(cell);
     }
   }
@@ -88,7 +87,8 @@ function finishedLoading(bufferList) {
       else {
         playing = false;
         clearTimeout(rescheduler);
-        clearTimeout(redrawer);
+        currentStep = 0;
+        repaint(0);
       }
     }
   });
@@ -103,21 +103,44 @@ function finishedLoading(bufferList) {
       var j = this.dataset.col;
       var note = parseInt(i*16) + parseInt(j);
 
-      if(this.dataset.checked == 0) {
-        this.dataset.checked = 1;
+      if(sequence[i][j] == 0) {
         this.classList.add("active");
         sequence[i][j] = 1;
         midi.noteOn(note, 100);
       }
-      else if(this.dataset.checked == 1) {
-        this.dataset.checked = 0;
-        this.style.opacity = 1;
+      else {
         this.classList.remove("active");
         sequence[i][j] = 0;
         midi.noteOff(note);
       }
     });
   }
+
+  // Center the matrix vertically
+  matrix.style.marginTop = parseInt(window.innerHeight/2 - matrix.clientHeight/2) + "px";
+
+}
+
+/**
+ * Refreshes the matrix view
+ * @param {integer} time The time to wait before refresh the view (in ms)
+ */
+function repaint(time) {
+  redrawer = window.setTimeout(function() {
+
+    for(var i=0; i < sequence.length; i++) {
+      var cells = document.getElementById("row" + i).querySelectorAll(".cell");
+
+      for (var j=0; j < steps; j++) {
+        cells[j].classList.remove("clocked");
+
+        if(j == currentStep && sequence[i][currentStep] == 0) {
+          cells[j].classList.add("clocked");
+        }
+      }
+    }
+
+  }, time);
 }
 
 /**
@@ -154,19 +177,7 @@ function scheduleNextStep() {
     }
   }
 
-  // Update matrix view
-  redrawer = window.setTimeout(function() {
-    var matrix = document.querySelectorAll(".cell");
-
-    for(var i=0; i< matrix.length; i++) {
-      var cell = matrix[i];
-      cell.classList.remove("clocked");
-
-      if(cell.dataset.col == currentStep && cell.dataset.checked == 0)
-        cell.classList.add("clocked");
-    }
-
-  }, context.currentTime - nextStepTime);
+  repaint(context.currentTime - nextStepTime);
 }
 
 /**
