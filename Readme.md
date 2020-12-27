@@ -11,4 +11,4 @@ Drum Machine for the Novation Launchpad powered by the Web Audio / Midi API
 
 ##Demo
 
-[Try it now](http://balegoff.github.io/matrix/ "demo link")
+[Try it now](https://balegoff.github.io/matrix/ "demo link")
