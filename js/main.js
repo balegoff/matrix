@@ -82,17 +82,19 @@ function finishedLoading(bufferList) {
     if (evt.keyCode == 32) {
       if (!playing) {
         context.resume();
+        document.getElementById('space-text').hidden = true;
         playing = true;
         nextStepTime = context.currentTime;
         scheduler();
       }
       else {
+        document.getElementById('space-text').hidden = false;
         playing = false;
         clearTimeout(rescheduler);
         currentStep = 0;
         repaint(0);
       }
-      
+
     }
   });
 

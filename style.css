@@ -1,24 +1,30 @@
 body {
-  background-color: #222;
+    background-color: #222;
 }
 
 .cell {
-  height: 50px;
-  width: 50px;
-  display: inline-block;
-  background-color: #bbb;
-  margin: 2px 2px;
-  border-radius: 5px;
+    height: 50px;
+    width: 50px;
+    display: inline-block;
+    background-color: #bbb;
+    margin: 2px 2px;
+    border-radius: 5px;
 }
 
 .cell.clocked {
-  background-color: #E91E63 ;
+    background-color: #E91E63 ;
 }
 
 .cell.active {
-  background-color: #fff;
+    background-color: #fff;
 }
 
 #matrix {
-  text-align: center;
+    text-align: center;
+}
+
+#space-text {
+    color: #888;
+    text-align: center;
+    font-family: sans-serif;
 }
