@@ -78,8 +78,10 @@ function finishedLoading(bufferList) {
 
   // Set press space event listener
   document.addEventListener('keyup', function (evt) {
+
     if (evt.keyCode == 32) {
       if (!playing) {
+        context.resume();
         playing = true;
         nextStepTime = context.currentTime;
         scheduler();
@@ -90,6 +92,7 @@ function finishedLoading(bufferList) {
         currentStep = 0;
         repaint(0);
       }
+      
     }
   });
 

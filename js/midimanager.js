@@ -105,13 +105,17 @@ function setDevice(dev) {
  * @param {integer} velocity  The note velocity (0-127)
  */
 MidiManager.prototype.noteOn = function(note, velocity) {
-  midi_output.send([ 0x90, note, velocity ]);
+  if(midi_output != null) {
+    midi_output.send([ 0x90, note, velocity ]);
+  } 
 }
 
 /**
  * Sends a note off MIDI message to the device output port
  * @param {integer} note      The MIDI note value (0-127)
  */
-MidiManager.prototype.noteOff = function(note){
-  midi_output.send([ 0x90, note, 0 ]);
+MidiManager.prototype.noteOff = function(note) {
+  if(midi_output != null) {
+    midi_output.send([ 0x90, note, 0 ]);
+  }
 }
