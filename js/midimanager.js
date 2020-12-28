@@ -9,10 +9,17 @@ var midi_sequence = null; // sequencer grid data
  */
 function MidiManager(seq) {
   midi_sequence = seq;
-  navigator.requestMIDIAccess().then(
-    onsuccesscallback,
-    function(err) { console.log("Failed to get MIDI access - " + err); }
-  );
+
+  if(navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess().then(
+      onsuccesscallback,
+      function(err) { console.log("Failed to get MIDI access - " + err); }
+    );
+  }
+  else {
+    console.log('WebMIDI is not supported in this browser.');
+  }
+  
 }
 
 /**
